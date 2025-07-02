@@ -143,6 +143,12 @@ git push heroku main
 vercel --prod
 ```
 
+## Netlify Serverless Functions (API Proxy)
+
+- The backend search is handled by a Netlify serverless function located in `netlify/functions/search.js`.
+- **API Key Security:** Set your HEROIC API key as an environment variable in Netlify (`HEROIC_API_KEY`). Do not expose it in frontend code.
+- The frontend calls `/api/search` which is proxied to the HEROIC API by the serverless function.
+
 ## Contributing
 
 This is an MVP (Minimum Viable Product) designed to demonstrate the core functionality of a heroic search tool. Future enhancements could include:
