@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heroic Search Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .search-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .results-header {
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hero-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .hero-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .hero-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .hero-title {
+            font-size: 1rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .power-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .hero-details {
+            margin-bottom: 15px;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .detail-value {
+            color: #6c757d;
+        }
+
+        .abilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .ability-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .hero-description {
+            color: #6c757d;
+            font-style: italic;
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            font-size: 1.1rem;
+            padding: 40px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ Heroic Search Tool</h1>
+            <p>Discover legendary heroes and their extraordinary abilities</p>
+        </div>
+
+        <div class="search-container">
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="searchInput">Search Heroes</label>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Search by name, abilities, weapon, origin..."
+                        autocomplete="off"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="classFilter">Class</label>
+                    <select id="classFilter">
+                        <option value="">All Classes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="powerFilter">Min Power</label>
+                    <input 
+                        type="number" 
+                        id="powerFilter" 
+                        placeholder="0"
+                        min="0"
+                        max="100"
+                    >
+                </div>
+                
+                <button type="submit" class="search-btn">Search</button>
+                <button type="button" class="clear-btn" id="clearBtn">Clear</button>
+            </form>
+        </div>
+
+        <div class="results-container">
+            <div class="results-header">
+                <span id="resultsTitle">All Heroes</span>
+            </div>
+            <div id="resultsArea">
+                <div class="loading">Loading heroes...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const classFilter = document.getElementById('classFilter');
+        const powerFilter = document.getElementById('powerFilter');
+        const searchForm = document.getElementById('searchForm');
+        const clearBtn = document.getElementById('clearBtn');
+        const resultsArea = document.getElementById('resultsArea');
+        const resultsTitle = document.getElementById('resultsTitle');
+
+        let allHeroes = [];
+
+        // Load initial data
+        async function loadInitialData() {
+            try {
+                const [heroesResponse, classesResponse] = await Promise.all([
+                    fetch('/api/heroes'),
+                    fetch('/api/classes')
+                ]);
+                
+                allHeroes = await heroesResponse.json();
+                const classes = await classesResponse.json();
+                
+                populateClassFilter(classes);
+                displayHeroes(allHeroes);
+                resultsTitle.textContent = `All Heroes (${allHeroes.length})`;
+            } catch (error) {
+                console.error('Error loading data:', error);
+                resultsArea.innerHTML = '<div class="no-results">Error loading heroes. Please try again.</div>';
+            }
+        }
+
+        function populateClassFilter(classes) {
+            classes.forEach(heroClass => {
+                const option = document.createElement('option');
+                option.value = heroClass;
+                option.textContent = heroClass;
+                classFilter.appendChild(option);
+            });
+        }
+
+        function displayHeroes(heroes) {
+            if (heroes.length === 0) {
+                resultsArea.innerHTML = '<div class="no-results">No heroes found matching your search criteria.</div>';
+                return;
+            }
+
+            const heroGrid = document.createElement('div');
+            heroGrid.className = 'hero-grid';
+
+            heroes.forEach(hero => {
+                const heroCard = createHeroCard(hero);
+                heroGrid.appendChild(heroCard);
+            });
+
+            resultsArea.innerHTML = '';
+            resultsArea.appendChild(heroGrid);
+        }
+
+        function createHeroCard(hero) {
+            const card = document.createElement('div');
+            card.className = 'hero-card';
+
+            card.innerHTML = `
+                <div class="hero-header">
+                    <div>
+                        <div class="hero-name">${hero.name}</div>
+                        <div class="hero-title">${hero.title}</div>
+                    </div>
+                    <div class="power-badge">Power: ${hero.power}</div>
+                </div>
+                
+                <div class="hero-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Class:</span>
+                        <span class="detail-value">${hero.class}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Weapon:</span>
+                        <span class="detail-value">${hero.weapon}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Origin:</span>
+                        <span class="detail-value">${hero.origin}</span>
+                    </div>
+                </div>
+
+                <div class="abilities">
+                    ${hero.abilities.map(ability => `<span class="ability-tag">${ability}</span>`).join('')}
+                </div>
+
+                <div class="hero-description">${hero.description}</div>
+            `;
+
+            return card;
+        }
+
+        async function performSearch() {
+            const query = searchInput.value.trim();
+            const selectedClass = classFilter.value;
+            const minPower = powerFilter.value;
+
+            if (!query && !selectedClass && !minPower) {
+                displayHeroes(allHeroes);
+                resultsTitle.textContent = `All Heroes (${allHeroes.length})`;
+                return;
+            }
+
+            try {
+                resultsArea.innerHTML = '<div class="loading">Searching...</div>';
+                
+                const params = new URLSearchParams();
+                if (query) params.append('q', query);
+                if (selectedClass) params.append('class', selectedClass);
+                if (minPower) params.append('minPower', minPower);
+
+                const response = await fetch(`/api/search?${params}`);
+                const results = await response.json();
+                
+                displayHeroes(results);
+                resultsTitle.textContent = `Search Results (${results.length})`;
+            } catch (error) {
+                console.error('Error searching:', error);
+                resultsArea.innerHTML = '<div class="no-results">Error performing search. Please try again.</div>';
+            }
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            classFilter.value = '';
+            powerFilter.value = '';
+            displayHeroes(allHeroes);
+            resultsTitle.textContent = `All Heroes (${allHeroes.length})`;
+        }
+
+        // Event listeners
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            performSearch();
+        });
+
+        clearBtn.addEventListener('click', clearSearch);
+
+        // Real-time search as user types
+        searchInput.addEventListener('input', () => {
+            setTimeout(performSearch, 300);
+        });
+
+        classFilter.addEventListener('change', performSearch);
+        powerFilter.addEventListener('input', performSearch);
+
+        // Load initial data when page loads
+        loadInitialData();
+    </script>
+</body>
+</html>

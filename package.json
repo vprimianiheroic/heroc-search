@@ -1,0 +1,21 @@
+{
+  "name": "heroic-search-tool",
+  "version": "1.0.0",
+  "description": "A basic MVP for searching heroic characters and their attributes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["search", "heroes", "characters", "web"],
+  "author": "",
+  "license": "MIT"
+}
