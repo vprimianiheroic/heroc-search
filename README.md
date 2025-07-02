@@ -1,6 +1,6 @@
-# Heroic Search Tool
+# HEROIC Breach Search Tool
 
-A modern, responsive web application for searching and discovering legendary heroes and their extraordinary abilities.
+A modern, secure web application for searching and investigating data breaches using the HEROIC cybersecurity API. This tool helps identify compromised credentials and personal information exposed in data breaches.
 
 ## 🚀 Live Demo
 
@@ -8,47 +8,53 @@ A modern, responsive web application for searching and discovering legendary her
 
 ## Features
 
-- **Real-time Search**: Search across hero names, titles, classes, weapons, origins, abilities, and descriptions
-- **Advanced Filtering**: Filter by hero class and minimum power level
-- **Beautiful UI**: Modern, responsive design with gradient backgrounds and card-based layout
-- **Detailed Hero Information**: View comprehensive details including abilities, weapons, origins, and descriptions
+- **Comprehensive Breach Search**: Search across multiple data types including emails, usernames, phone numbers, IP addresses, domains, SSNs, and Bitcoin addresses
+- **Real-time Results**: Instant search results from HEROIC's extensive breach database
+- **Privacy Protection**: All sensitive data (passwords, SSNs, credit cards) is automatically masked in results
+- **Professional UI**: Clean, secure interface designed for cybersecurity professionals
+- **Detailed Breach Information**: View comprehensive details including breach dates, affected sites, and types of exposed data
 - **Mobile-Friendly**: Responsive design that works perfectly on all devices
 
-## Hero Database
+## Breach Search Capabilities
 
-The tool includes a diverse collection of legendary heroes from various mythologies and fictional universes:
+The tool searches HEROIC's database of billions of compromised records across various breach types:
 
-- **Arthur Pendragon** (King Arthur) - Paladin with Excalibur
-- **Diana Prince** (Wonder Woman) - Warrior from Themyscira
-- **Clark Kent** (Superman) - Guardian from Krypton
-- **Bruce Wayne** (Batman) - Detective from Gotham City
-- **Gandalf** (The Grey Wizard) - Wizard from Middle-earth
-- **Jean Grey** (Phoenix) - Psychic with telepathic abilities
+- **Email Addresses** - Find breaches containing specific email addresses
+- **Usernames** - Search for compromised usernames across platforms
+- **Phone Numbers** - Identify breaches exposing phone numbers
+- **IP Addresses** - Check for IP address exposure in data breaches
+- **Email Domains** - Search for all breaches affecting a specific domain
+- **Social Security Numbers** - Find SSN exposures (results are masked for privacy)
+- **Bitcoin Addresses** - Search for cryptocurrency address exposure
 
 ## 📦 Deployment Options
 
 ### Option 1: Static Version (Netlify, Vercel, etc.)
 
-For static hosting platforms like Netlify:
+For static hosting platforms like Netlify with serverless functions:
 
-1. **Files needed**: `public/static-index.html` + `netlify.toml`
-2. **No backend required** - all data embedded in frontend
-3. **Perfect for**: Netlify, Vercel, GitHub Pages, etc.
+1. **Files needed**: `public/index.html` + `netlify.toml` + `netlify/functions/search.js`
+2. **Serverless backend** - API calls handled by Netlify functions
+3. **Perfect for**: Netlify, Vercel with serverless support
 
 **Netlify Deployment:**
 ```bash
 # The netlify.toml file is already configured
 # Just connect your GitHub repo to Netlify
+# Set your HEROIC_API_KEY environment variable in Netlify settings
 # Build command: echo 'Static site - no build required'
 # Publish directory: public
 ```
+
+**Environment Variables Required:**
+- `HEROIC_API_KEY` - Your HEROIC Enterprise API key
 
 ### Option 2: Full-Stack Version (Heroku, Railway, etc.)
 
 For platforms that support Node.js:
 
 1. **Files needed**: All files (server.js, package.json, public/index.html)
-2. **Backend included** - Express.js API with real endpoints
+2. **Backend included** - Express.js server with API proxy
 3. **Perfect for**: Heroku, Railway, Render, DigitalOcean, etc.
 
 ## 🛠 Local Development
@@ -66,101 +72,130 @@ cd heroic-search-tool
 npm install
 ```
 
-3. Run the application:
+3. Set environment variables:
+```bash
+export HEROIC_API_KEY=your_heroic_api_key_here
+```
+
+4. Run the application:
 ```bash
 npm start
 ```
 
-4. Open your browser and navigate to:
+5. Open your browser and navigate to:
 ```
 http://localhost:3000
 ```
 
-### Static Version Only:
-
-Simply open `public/static-index.html` directly in your browser or serve it with any static file server.
-
-## Development
-
-For development with auto-restart:
+### Development with auto-restart:
 ```bash
 npm run dev
 ```
 
+## API Integration
+
+This tool integrates with the HEROIC Enterprise API to provide breach search capabilities:
+
+- **Base URL**: `https://api.heroic.com/v7`
+- **Authentication**: Requires valid HEROIC Enterprise API key
+- **Endpoint Used**: `/breach-search` for searching compromised data
+
 ## API Endpoints (Full-Stack Version)
 
 - `GET /` - Serves the main application
-- `GET /api/heroes` - Returns all heroes
-- `GET /api/search?q=query&class=class&minPower=power` - Search heroes with filters
-- `GET /api/classes` - Returns all available hero classes
+- `GET /api/search?type=TYPE&account=VALUE` - Proxy to HEROIC breach search API
 
 ## Usage
 
-1. **Basic Search**: Type any keyword in the search box to find heroes by name, title, abilities, weapons, etc.
-2. **Class Filtering**: Select a specific hero class from the dropdown (Paladin, Warrior, Guardian, Detective, Wizard, Psychic)
-3. **Power Filtering**: Set a minimum power level to filter heroes by their strength
-4. **Clear Filters**: Use the Clear button to reset all filters and show all heroes
-5. **Real-time Results**: Search results update automatically as you type
+1. **Select Search Type**: Choose the type of data you want to search for (email, username, etc.)
+2. **Enter Search Value**: Input the specific value to search for (e.g., email address, username)
+3. **Review Results**: View detailed breach information including:
+   - Breach site details
+   - Date of breach
+   - Types of data exposed
+   - Number of affected records
+   - Breach descriptions
+
+## Privacy & Security
+
+- **Data Masking**: All sensitive information is automatically masked in results
+- **Secure API**: All searches go through secure HTTPS connections
+- **No Data Storage**: The application does not store any search queries or results
+- **Professional Use**: Designed for legitimate cybersecurity and breach investigation purposes
 
 ## Technology Stack
 
 - **Backend**: Node.js with Express.js (full-stack version)
+- **Serverless**: Netlify Functions for API proxy (static version)
 - **Frontend**: Vanilla HTML, CSS, and JavaScript
-- **Styling**: Modern CSS with gradients, animations, and responsive design
-- **Data**: In-memory JSON data structure
-- **Static Version**: Pure frontend with embedded data
+- **Styling**: Modern CSS with professional cybersecurity theme
+- **API Integration**: HEROIC Enterprise API v7
 
 ## Project Structure
 
 ```
 heroic-search-tool/
-├── netlify.toml           # Netlify deployment configuration
-├── package.json           # Node.js dependencies and scripts
-├── server.js              # Express server and API endpoints (full-stack)
-├── README.md              # Project documentation
+├── netlify.toml              # Netlify deployment configuration
+├── netlify/functions/
+│   └── search.js            # Netlify serverless function for API proxy
+├── package.json             # Node.js dependencies and scripts
+├── server.js                # Express server (full-stack version)
+├── openapi.json             # HEROIC API documentation
+├── HEROIC API Reference.pdf # Complete API documentation
+├── README.md                # Project documentation
 └── public/
-    ├── index.html         # Frontend for full-stack version
-    └── static-index.html  # Standalone static version
+    ├── index.html           # Main application interface
+    └── static-index.html    # Legacy version (fantasy themed - deprecated)
 ```
 
 ## 🚀 Quick Deploy
 
-### Netlify (Recommended for Static)
+### Netlify (Recommended)
 1. Connect your GitHub repository to Netlify
-2. Netlify will automatically use the `netlify.toml` configuration
-3. Your site will be live at your-app-name.netlify.app
+2. Set `HEROIC_API_KEY` environment variable in Netlify settings
+3. Netlify will automatically use the `netlify.toml` configuration
+4. Your breach search tool will be live at your-app-name.netlify.app
 
 ### Heroku (For Full-Stack)
 ```bash
 # Install Heroku CLI, then:
 heroku create your-app-name
+heroku config:set HEROIC_API_KEY=your_api_key_here
 git push heroku main
 ```
 
-### Vercel (For Static)
-```bash
-# Install Vercel CLI, then:
-vercel --prod
-```
+## Requirements
 
-## Netlify Serverless Functions (API Proxy)
+- **HEROIC Enterprise Account**: This tool requires a valid HEROIC Enterprise API key
+- **API Access**: Sign up at [HEROIC Enterprise](https://app.heroic.com/enterprise/register)
+- **Environment Configuration**: Proper API key setup in your deployment environment
 
-- The backend search is handled by a Netlify serverless function located in `netlify/functions/search.js`.
-- **API Key Security:** Set your HEROIC API key as an environment variable in Netlify (`HEROIC_API_KEY`). Do not expose it in frontend code.
-- The frontend calls `/api/search` which is proxied to the HEROIC API by the serverless function.
+## Legal & Compliance
+
+This tool is designed for legitimate cybersecurity purposes including:
+- Security breach investigation
+- Credential compromise analysis
+- Cybersecurity risk assessment
+- OSINT (Open Source Intelligence) gathering
+
+**Important**: Use this tool responsibly and in compliance with applicable laws and regulations. Do not use for unauthorized surveillance or privacy violations.
 
 ## Contributing
 
-This is an MVP (Minimum Viable Product) designed to demonstrate the core functionality of a heroic search tool. Future enhancements could include:
+This is a professional cybersecurity tool. Future enhancements could include:
 
-- Database integration (MongoDB, PostgreSQL)
-- User authentication and favorites
-- Advanced search algorithms
-- Hero comparison features
-- Image galleries for heroes
-- Export functionality
-- Admin interface for managing heroes
+- Advanced filtering and search options
+- Bulk search capabilities
+- Export functionality for security reports
+- Integration with SIEM systems
+- Custom alerting and monitoring
+- Enhanced data visualization
+
+## Support
+
+For HEROIC API support, contact: support@heroic.com
+For tool-specific issues, please create a GitHub issue.
 
 ## License
 
-MIT License - Feel free to use and modify as needed.
+MIT License - Feel free to use and modify as needed for legitimate cybersecurity purposes.

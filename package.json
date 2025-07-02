@@ -1,7 +1,7 @@
 {
   "name": "heroic-search-tool",
   "version": "1.0.0",
-  "description": "A basic MVP for searching heroic characters and their attributes",
+  "description": "A cybersecurity breach search tool using the HEROIC Enterprise API to identify compromised credentials and data breaches",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -16,7 +16,7 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["search", "heroes", "characters", "web"],
+  "keywords": ["cybersecurity", "breach-search", "heroic-api", "data-breach", "security", "osint"],
   "author": "",
   "license": "MIT"
 }
