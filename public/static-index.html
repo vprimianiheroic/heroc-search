@@ -51,7 +51,7 @@
 
         .search-form {
             display: grid;
-            grid-template-columns: 1fr auto auto auto;
+            grid-template-columns: 1fr auto auto;
             gap: 15px;
             align-items: end;
         }
@@ -208,6 +208,8 @@
             border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 500;
+            margin-right: 5px;
+            display: inline-block;
         }
 
         .hero-description {
@@ -250,39 +252,33 @@
     <div class="container">
         <div class="header">
             <h1>⚔️ Heroic Search Tool</h1>
-            <p>Discover legendary heroes and their extraordinary abilities</p>
+            <p>Discover compromised credentials and breach details</p>
         </div>
 
         <div class="search-container">
             <form class="search-form" id="searchForm">
                 <div class="form-group">
-                    <label for="searchInput">Search Heroes</label>
+                    <label for="typeSelect">Search Type</label>
+                    <select id="typeSelect" required>
+                        <option value="email">Email</option>
+                        <option value="username">Username</option>
+                        <option value="phone_number">Phone Number</option>
+                        <option value="ip_address">IP Address</option>
+                        <option value="email_domain">Email Domain</option>
+                        <option value="social_security_number">SSN</option>
+                        <option value="bitcoin_address">Bitcoin Address</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="accountInput">Value</label>
                     <input 
                         type="text" 
-                        id="searchInput" 
-                        placeholder="Search by name, abilities, weapon, origin..."
+                        id="accountInput" 
+                        placeholder="Enter value (e.g. email, username, etc.)"
+                        required
                         autocomplete="off"
                     >
                 </div>
-                
-                <div class="form-group">
-                    <label for="classFilter">Class</label>
-                    <select id="classFilter">
-                        <option value="">All Classes</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="powerFilter">Min Power</label>
-                    <input 
-                        type="number" 
-                        id="powerFilter" 
-                        placeholder="0"
-                        min="0"
-                        max="100"
-                    >
-                </div>
-                
                 <button type="submit" class="search-btn">Search</button>
                 <button type="button" class="clear-btn" id="clearBtn">Clear</button>
             </form>
@@ -290,230 +286,67 @@
 
         <div class="results-container">
             <div class="results-header">
-                <span id="resultsTitle">All Heroes</span>
+                <span id="resultsTitle">Search Results</span>
             </div>
             <div id="resultsArea">
-                <div class="loading">Loading heroes...</div>
+                <div class="loading">Enter a value and search for compromised credentials.</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Hero data embedded directly in the frontend for static deployment
-        const heroes = [
-            {
-                id: 1,
-                name: "Arthur Pendragon",
-                title: "King Arthur",
-                class: "Paladin",
-                power: 95,
-                weapon: "Excalibur",
-                abilities: ["Leadership", "Divine Protection", "Swordsmanship"],
-                origin: "Camelot",
-                description: "The legendary king who united Britain and wielded the sacred sword Excalibur."
-            },
-            {
-                id: 2,
-                name: "Diana Prince",
-                title: "Wonder Woman",
-                class: "Warrior",
-                power: 92,
-                weapon: "Lasso of Truth",
-                abilities: ["Super Strength", "Flight", "Combat Skills"],
-                origin: "Themyscira",
-                description: "Amazonian princess and protector of humanity with incredible strength and wisdom."
-            },
-            {
-                id: 3,
-                name: "Clark Kent",
-                title: "Superman",
-                class: "Guardian",
-                power: 98,
-                weapon: "Heat Vision",
-                abilities: ["Flight", "Super Strength", "X-Ray Vision", "Invulnerability"],
-                origin: "Krypton",
-                description: "The last son of Krypton who protects Earth with his incredible powers."
-            },
-            {
-                id: 4,
-                name: "Bruce Wayne",
-                title: "Batman",
-                class: "Detective",
-                power: 85,
-                weapon: "Batarang",
-                abilities: ["Martial Arts", "Detective Skills", "Technology"],
-                origin: "Gotham City",
-                description: "The Dark Knight who fights crime using his intellect, martial arts, and advanced technology."
-            },
-            {
-                id: 5,
-                name: "Gandalf",
-                title: "The Grey Wizard",
-                class: "Wizard",
-                power: 96,
-                weapon: "Staff of Power",
-                abilities: ["Magic", "Wisdom", "Light Magic"],
-                origin: "Middle-earth",
-                description: "A wise wizard who guides the Fellowship and fights against the forces of darkness."
-            },
-            {
-                id: 6,
-                name: "Jean Grey",
-                title: "Phoenix",
-                class: "Psychic",
-                power: 94,
-                weapon: "Telepathy",
-                abilities: ["Telepathy", "Telekinesis", "Phoenix Force"],
-                origin: "Earth",
-                description: "A powerful mutant with telepathic and telekinetic abilities, host to the Phoenix Force."
-            }
-        ];
-
-        const searchInput = document.getElementById('searchInput');
-        const classFilter = document.getElementById('classFilter');
-        const powerFilter = document.getElementById('powerFilter');
+        const typeSelect = document.getElementById('typeSelect');
+        const accountInput = document.getElementById('accountInput');
         const searchForm = document.getElementById('searchForm');
         const clearBtn = document.getElementById('clearBtn');
         const resultsArea = document.getElementById('resultsArea');
         const resultsTitle = document.getElementById('resultsTitle');
 
-        // Initialize the application
-        function init() {
-            populateClassFilter();
-            displayHeroes(heroes);
-            resultsTitle.textContent = `All Heroes (${heroes.length})`;
+        async function performSearch() {
+            const type = typeSelect.value;
+            const account = accountInput.value.trim();
+            if (!type || !account) return;
+            resultsArea.innerHTML = '<div class="loading">Searching...</div>';
+            try {
+                const params = new URLSearchParams({ type, account });
+                const response = await fetch(`/api/search?${params}`);
+                const data = await response.json();
+                displayResults(data);
+            } catch (error) {
+                resultsArea.innerHTML = '<div class="no-results">Error searching. Please try again.</div>';
+            }
         }
 
-        function populateClassFilter() {
-            const classes = [...new Set(heroes.map(hero => hero.class))];
-            classes.forEach(heroClass => {
-                const option = document.createElement('option');
-                option.value = heroClass;
-                option.textContent = heroClass;
-                classFilter.appendChild(option);
-            });
-        }
-
-        function displayHeroes(heroList) {
-            if (heroList.length === 0) {
-                resultsArea.innerHTML = '<div class="no-results">No heroes found matching your search criteria.</div>';
+        function displayResults(data) {
+            if (!data || !data.data || data.data.length === 0) {
+                resultsArea.innerHTML = '<div class="no-results">No compromised credentials found for this query.</div>';
                 return;
             }
-
-            const heroGrid = document.createElement('div');
-            heroGrid.className = 'hero-grid';
-
-            heroList.forEach(hero => {
-                const heroCard = createHeroCard(hero);
-                heroGrid.appendChild(heroCard);
-            });
-
-            resultsArea.innerHTML = '';
-            resultsArea.appendChild(heroGrid);
-        }
-
-        function createHeroCard(hero) {
-            const card = document.createElement('div');
-            card.className = 'hero-card';
-
-            card.innerHTML = `
-                <div class="hero-header">
-                    <div>
-                        <div class="hero-name">${hero.name}</div>
-                        <div class="hero-title">${hero.title}</div>
-                    </div>
-                    <div class="power-badge">Power: ${hero.power}</div>
-                </div>
-                
-                <div class="hero-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Class:</span>
-                        <span class="detail-value">${hero.class}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Weapon:</span>
-                        <span class="detail-value">${hero.weapon}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Origin:</span>
-                        <span class="detail-value">${hero.origin}</span>
-                    </div>
-                </div>
-
-                <div class="abilities">
-                    ${hero.abilities.map(ability => `<span class="ability-tag">${ability}</span>`).join('')}
-                </div>
-
-                <div class="hero-description">${hero.description}</div>
-            `;
-
-            return card;
-        }
-
-        function searchHeroes(query, filters = {}) {
-            const searchTerm = query.toLowerCase();
-            
-            return heroes.filter(hero => {
-                // Text search across multiple fields
-                const matchesText = !query || 
-                    hero.name.toLowerCase().includes(searchTerm) ||
-                    hero.title.toLowerCase().includes(searchTerm) ||
-                    hero.class.toLowerCase().includes(searchTerm) ||
-                    hero.weapon.toLowerCase().includes(searchTerm) ||
-                    hero.origin.toLowerCase().includes(searchTerm) ||
-                    hero.description.toLowerCase().includes(searchTerm) ||
-                    hero.abilities.some(ability => ability.toLowerCase().includes(searchTerm));
-                
-                // Filter by class if specified
-                const matchesClass = !filters.class || hero.class.toLowerCase() === filters.class.toLowerCase();
-                
-                // Filter by minimum power if specified
-                const matchesPower = !filters.minPower || hero.power >= parseInt(filters.minPower);
-                
-                return matchesText && matchesClass && matchesPower;
-            });
-        }
-
-        function performSearch() {
-            const query = searchInput.value.trim();
-            const selectedClass = classFilter.value;
-            const minPower = powerFilter.value;
-
-            const filters = {};
-            if (selectedClass) filters.class = selectedClass;
-            if (minPower) filters.minPower = minPower;
-
-            const results = searchHeroes(query, filters);
-            displayHeroes(results);
-            resultsTitle.textContent = `${query || selectedClass || minPower ? 'Search Results' : 'All Heroes'} (${results.length})`;
+            const items = data.data.map(item => {
+                const breached = item.breached_data;
+                const details = item.breach_details;
+                return `<div class="hero-card">
+                    <div><strong>Breach Site:</strong> ${details.site_name} (${details.site_domain})</div>
+                    <div><strong>Date Leaked:</strong> ${details.date_leaked}</div>
+                    <div><strong>Description:</strong> ${details.description}</div>
+                    <div><strong>Exposed Data:</strong> ${Object.entries(breached).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
+                </div>`;
+            }).join('');
+            resultsArea.innerHTML = `<div class="hero-grid">${items}</div>`;
+            resultsTitle.textContent = `Results (${data.data.length})`;
         }
 
         function clearSearch() {
-            searchInput.value = '';
-            classFilter.value = '';
-            powerFilter.value = '';
-            displayHeroes(heroes);
-            resultsTitle.textContent = `All Heroes (${heroes.length})`;
+            accountInput.value = '';
+            resultsArea.innerHTML = '<div class="loading">Enter a value and search for compromised credentials.</div>';
+            resultsTitle.textContent = 'Search Results';
         }
 
-        // Event listeners
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             performSearch();
         });
-
         clearBtn.addEventListener('click', clearSearch);
-
-        // Real-time search as user types
-        searchInput.addEventListener('input', () => {
-            setTimeout(performSearch, 300);
-        });
-
-        classFilter.addEventListener('change', performSearch);
-        powerFilter.addEventListener('input', performSearch);
-
-        // Initialize the app when page loads
-        init();
     </script>
 </body>
 </html>
