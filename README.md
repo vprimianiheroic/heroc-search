@@ -2,6 +2,10 @@
 
 A modern, responsive web application for searching and discovering legendary heroes and their extraordinary abilities.
 
+## 🚀 Live Demo
+
+**🌐 Static Version (Netlify)**: [Coming Soon - Your Netlify URL]
+
 ## Features
 
 - **Real-time Search**: Search across hero names, titles, classes, weapons, origins, abilities, and descriptions
@@ -21,7 +25,35 @@ The tool includes a diverse collection of legendary heroes from various mytholog
 - **Gandalf** (The Grey Wizard) - Wizard from Middle-earth
 - **Jean Grey** (Phoenix) - Psychic with telepathic abilities
 
-## Installation
+## 📦 Deployment Options
+
+### Option 1: Static Version (Netlify, Vercel, etc.)
+
+For static hosting platforms like Netlify:
+
+1. **Files needed**: `public/static-index.html` + `netlify.toml`
+2. **No backend required** - all data embedded in frontend
+3. **Perfect for**: Netlify, Vercel, GitHub Pages, etc.
+
+**Netlify Deployment:**
+```bash
+# The netlify.toml file is already configured
+# Just connect your GitHub repo to Netlify
+# Build command: echo 'Static site - no build required'
+# Publish directory: public
+```
+
+### Option 2: Full-Stack Version (Heroku, Railway, etc.)
+
+For platforms that support Node.js:
+
+1. **Files needed**: All files (server.js, package.json, public/index.html)
+2. **Backend included** - Express.js API with real endpoints
+3. **Perfect for**: Heroku, Railway, Render, DigitalOcean, etc.
+
+## 🛠 Local Development
+
+### Full-Stack Version:
 
 1. Clone the repository:
 ```bash
@@ -44,6 +76,10 @@ npm start
 http://localhost:3000
 ```
 
+### Static Version Only:
+
+Simply open `public/static-index.html` directly in your browser or serve it with any static file server.
+
 ## Development
 
 For development with auto-restart:
@@ -51,7 +87,7 @@ For development with auto-restart:
 npm run dev
 ```
 
-## API Endpoints
+## API Endpoints (Full-Stack Version)
 
 - `GET /` - Serves the main application
 - `GET /api/heroes` - Returns all heroes
@@ -68,20 +104,43 @@ npm run dev
 
 ## Technology Stack
 
-- **Backend**: Node.js with Express.js
+- **Backend**: Node.js with Express.js (full-stack version)
 - **Frontend**: Vanilla HTML, CSS, and JavaScript
 - **Styling**: Modern CSS with gradients, animations, and responsive design
 - **Data**: In-memory JSON data structure
+- **Static Version**: Pure frontend with embedded data
 
 ## Project Structure
 
 ```
 heroic-search-tool/
-├── package.json
-├── server.js          # Express server and API endpoints
-├── README.md          # Project documentation
+├── netlify.toml           # Netlify deployment configuration
+├── package.json           # Node.js dependencies and scripts
+├── server.js              # Express server and API endpoints (full-stack)
+├── README.md              # Project documentation
 └── public/
-    └── index.html     # Frontend application
+    ├── index.html         # Frontend for full-stack version
+    └── static-index.html  # Standalone static version
+```
+
+## 🚀 Quick Deploy
+
+### Netlify (Recommended for Static)
+1. Connect your GitHub repository to Netlify
+2. Netlify will automatically use the `netlify.toml` configuration
+3. Your site will be live at your-app-name.netlify.app
+
+### Heroku (For Full-Stack)
+```bash
+# Install Heroku CLI, then:
+heroku create your-app-name
+git push heroku main
+```
+
+### Vercel (For Static)
+```bash
+# Install Vercel CLI, then:
+vercel --prod
 ```
 
 ## Contributing
