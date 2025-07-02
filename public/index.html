@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heroic Search Tool</title>
+    <title>HEROIC Breach Search Tool</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             min-height: 100vh;
             color: #333;
         }
@@ -51,7 +51,7 @@
 
         .search-form {
             display: grid;
-            grid-template-columns: 1fr auto auto auto;
+            grid-template-columns: 1fr 1fr auto auto;
             gap: 15px;
             align-items: end;
         }
@@ -79,11 +79,11 @@
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #e74c3c;
         }
 
         .search-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
             color: white;
             border: none;
             padding: 12px 25px;
@@ -127,55 +127,55 @@
             color: #333;
         }
 
-        .hero-grid {
+        .breach-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             gap: 20px;
         }
 
-        .hero-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        .breach-card {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
             border-radius: 12px;
             padding: 20px;
-            border: 1px solid #e1e5e9;
+            border-left: 4px solid #e74c3c;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .hero-card:hover {
-            transform: translateY(-5px);
+        .breach-card:hover {
+            transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(0,0,0,0.1);
         }
 
-        .hero-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .breach-header {
             margin-bottom: 15px;
         }
 
-        .hero-name {
+        .site-name {
             font-size: 1.3rem;
             font-weight: 700;
             color: #2c3e50;
+            margin-bottom: 5px;
         }
 
-        .hero-title {
+        .site-domain {
             font-size: 1rem;
-            color: #667eea;
+            color: #e74c3c;
             font-weight: 600;
         }
 
-        .power-badge {
-            background: linear-gradient(135deg, #28a745, #20c997);
+        .date-leaked {
+            background: #e74c3c;
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
         }
 
-        .hero-details {
-            margin-bottom: 15px;
+        .breach-details {
+            margin: 15px 0;
         }
 
         .detail-row {
@@ -186,7 +186,7 @@
         .detail-label {
             font-weight: 600;
             color: #495057;
-            width: 80px;
+            width: 120px;
             flex-shrink: 0;
         }
 
@@ -194,15 +194,15 @@
             color: #6c757d;
         }
 
-        .abilities {
+        .exposed-data {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-top: 10px;
         }
 
-        .ability-tag {
-            background: #667eea;
+        .data-tag {
+            background: #e74c3c;
             color: white;
             padding: 4px 10px;
             border-radius: 15px;
@@ -210,11 +210,11 @@
             font-weight: 500;
         }
 
-        .hero-description {
+        .breach-description {
             color: #6c757d;
-            font-style: italic;
             line-height: 1.4;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-style: italic;
         }
 
         .no-results {
@@ -227,7 +227,20 @@
         .loading {
             text-align: center;
             padding: 40px;
-            color: #667eea;
+            color: #e74c3c;
+        }
+
+        .warning-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .warning-notice strong {
+            color: #b8860b;
         }
 
         @media (max-width: 768px) {
@@ -236,7 +249,7 @@
                 gap: 15px;
             }
 
-            .hero-grid {
+            .breach-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -249,8 +262,12 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚔️ Heroic Search Tool</h1>
-            <p>Discover legendary heroes and their extraordinary abilities</p>
+            <h1>🔍 HEROIC Breach Search</h1>
+            <p>Search for compromised credentials and data breaches</p>
+        </div>
+
+        <div class="warning-notice">
+            <strong>Privacy Notice:</strong> This tool searches for compromised data to help identify security breaches. All sensitive data (passwords, SSNs, credit cards) is masked in results to protect privacy.
         </div>
 
         <div class="search-container">
@@ -258,21 +275,22 @@
                 <div class="form-group">
                     <label for="typeSelect">Search Type</label>
                     <select id="typeSelect" required>
-                        <option value="email">Email</option>
+                        <option value="">Select search type...</option>
+                        <option value="email">Email Address</option>
                         <option value="username">Username</option>
                         <option value="phone_number">Phone Number</option>
                         <option value="ip_address">IP Address</option>
                         <option value="email_domain">Email Domain</option>
-                        <option value="social_security_number">SSN</option>
+                        <option value="social_security_number">Social Security Number</option>
                         <option value="bitcoin_address">Bitcoin Address</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="accountInput">Value</label>
+                    <label for="accountInput">Search Value</label>
                     <input 
                         type="text" 
                         id="accountInput" 
-                        placeholder="Enter value (e.g. email, username, etc.)"
+                        placeholder="Enter the value to search for..."
                         required
                         autocomplete="off"
                     >
@@ -287,7 +305,7 @@
                 <span id="resultsTitle">Search Results</span>
             </div>
             <div id="resultsArea">
-                <div class="loading">Enter a value and search for compromised credentials.</div>
+                <div class="loading">Enter a search type and value to search for compromised data.</div>
             </div>
         </div>
     </div>
@@ -300,43 +318,118 @@
         const resultsArea = document.getElementById('resultsArea');
         const resultsTitle = document.getElementById('resultsTitle');
 
+        // Update placeholder text based on selected type
+        typeSelect.addEventListener('change', function() {
+            const placeholders = {
+                'email': 'e.g., user@example.com',
+                'username': 'e.g., johnsmith123',
+                'phone_number': 'e.g., +1234567890',
+                'ip_address': 'e.g., 192.168.1.1',
+                'email_domain': 'e.g., example.com',
+                'social_security_number': 'e.g., 123-45-6789',
+                'bitcoin_address': 'e.g., 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
+            };
+            
+            accountInput.placeholder = placeholders[this.value] || 'Enter the value to search for...';
+        });
+
         async function performSearch() {
             const type = typeSelect.value;
             const account = accountInput.value.trim();
-            if (!type || !account) return;
-            resultsArea.innerHTML = '<div class="loading">Searching...</div>';
+            
+            if (!type || !account) {
+                alert('Please select a search type and enter a value.');
+                return;
+            }
+
+            resultsArea.innerHTML = '<div class="loading">Searching for compromised data...</div>';
+            resultsTitle.textContent = 'Searching...';
+
             try {
                 const params = new URLSearchParams({ type, account });
                 const response = await fetch(`/api/search?${params}`);
                 const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Search failed');
+                }
+                
                 displayResults(data);
             } catch (error) {
-                resultsArea.innerHTML = '<div class="no-results">Error searching. Please try again.</div>';
+                console.error('Search error:', error);
+                resultsArea.innerHTML = `<div class="no-results">
+                    <strong>Search Error:</strong> ${error.message}<br>
+                    Please check your input and try again.
+                </div>`;
+                resultsTitle.textContent = 'Error';
             }
         }
 
         function displayResults(data) {
             if (!data || !data.data || data.data.length === 0) {
-                resultsArea.innerHTML = '<div class="no-results">No compromised credentials found for this query.</div>';
+                resultsArea.innerHTML = '<div class="no-results">✅ No compromised data found for this search. This is good news!</div>';
+                resultsTitle.textContent = 'No Results Found';
                 return;
             }
-            const items = data.data.map(item => {
-                const breached = item.breached_data;
-                const details = item.breach_details;
-                return `<div class="hero-card">
-                    <div><strong>Breach Site:</strong> ${details.site_name} (${details.site_domain})</div>
-                    <div><strong>Date Leaked:</strong> ${details.date_leaked}</div>
-                    <div><strong>Description:</strong> ${details.description}</div>
-                    <div><strong>Exposed Data:</strong> ${Object.entries(breached).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
-                </div>`;
+
+            const breachItems = data.data.map(item => {
+                const breached = item.breached_data || {};
+                const details = item.breach_details || {};
+                
+                // Create exposed data tags
+                const exposedDataTags = Object.entries(breached)
+                    .filter(([key, value]) => value && key !== 'other_attributes')
+                    .map(([key, value]) => {
+                        const displayKey = key.replace(/_/g, ' ').toUpperCase();
+                        return `<span class="data-tag">${displayKey}</span>`;
+                    }).join(' ');
+
+                return `
+                    <div class="breach-card">
+                        <div class="breach-header">
+                            <div class="site-name">${details.site_name || 'Unknown Site'}</div>
+                            <div class="site-domain">${details.site_domain || 'Unknown Domain'}</div>
+                            <div class="date-leaked">Leaked: ${details.date_leaked || 'Unknown Date'}</div>
+                        </div>
+                        
+                        <div class="breach-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Records Found:</span>
+                                <span class="detail-value">${details.pwned_count ? details.pwned_count.toLocaleString() : 'Unknown'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Categories:</span>
+                                <span class="detail-value">${details.site_categories || 'Unknown'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Country:</span>
+                                <span class="detail-value">${details.site_country || 'Unknown'}</span>
+                            </div>
+                        </div>
+
+                        ${exposedDataTags ? `
+                            <div>
+                                <strong>Your Exposed Data:</strong>
+                                <div class="exposed-data">${exposedDataTags}</div>
+                            </div>
+                        ` : ''}
+
+                        ${details.description ? `
+                            <div class="breach-description">${details.description}</div>
+                        ` : ''}
+                    </div>
+                `;
             }).join('');
-            resultsArea.innerHTML = `<div class="hero-grid">${items}</div>`;
-            resultsTitle.textContent = `Results (${data.data.length})`;
+
+            resultsArea.innerHTML = `<div class="breach-grid">${breachItems}</div>`;
+            resultsTitle.textContent = `⚠️ ${data.data.length} Breach${data.data.length !== 1 ? 'es' : ''} Found`;
         }
 
         function clearSearch() {
+            typeSelect.value = '';
             accountInput.value = '';
-            resultsArea.innerHTML = '<div class="loading">Enter a value and search for compromised credentials.</div>';
+            accountInput.placeholder = 'Enter the value to search for...';
+            resultsArea.innerHTML = '<div class="loading">Enter a search type and value to search for compromised data.</div>';
             resultsTitle.textContent = 'Search Results';
         }
 
@@ -344,6 +437,7 @@
             e.preventDefault();
             performSearch();
         });
+
         clearBtn.addEventListener('click', clearSearch);
     </script>
 </body>
