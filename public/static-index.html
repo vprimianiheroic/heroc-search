@@ -310,10 +310,22 @@
             try {
                 const params = new URLSearchParams({ type, account });
                 const response = await fetch(`/api/search?${params}`);
-                const data = await response.json();
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonErr) {
+                    resultsArea.innerHTML = `<div class='no-results'>Invalid JSON response from server.<br>${jsonErr.message}</div>`;
+                    return;
+                }
+                if (!response.ok) {
+                    let errorMsg = data && data.error ? data.error : 'Unknown error';
+                    if (data && data.details) errorMsg += `<br><small>${data.details}</small>`;
+                    resultsArea.innerHTML = `<div class='no-results'>Error: ${errorMsg}</div>`;
+                    return;
+                }
                 displayResults(data);
             } catch (error) {
-                resultsArea.innerHTML = '<div class="no-results">Error searching. Please try again.</div>';
+                resultsArea.innerHTML = `<div class='no-results'>Network or unexpected error.<br>${error.message}</div>`;
             }
         }
 
