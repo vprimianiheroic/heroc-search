@@ -141,35 +141,74 @@
         }
         .hero-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 18px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 22px;
         }
         .hero-card {
             background: #fff;
-            border-radius: 10px;
-            padding: 18px 16px 14px 16px;
+            border-radius: 12px;
+            padding: 22px 20px 16px 20px;
             border: 1.5px solid #e1e5e9;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+            box-shadow: 0 2px 8px rgba(102,126,234,0.08);
             transition: box-shadow 0.2s, border-color 0.2s, transform 0.18s;
+            display: flex;
+            flex-direction: column;
+            min-height: 210px;
         }
         .hero-card:hover {
             box-shadow: 0 8px 24px rgba(102,126,234,0.13);
             border-color: #b4b8f7;
             transform: translateY(-2px) scale(1.01);
         }
-        .hero-card strong {
+        .breach-site {
+            font-size: 1.13rem;
+            font-weight: 700;
             color: #4f46e5;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .breach-site-icon {
+            font-size: 1.1rem;
+            color: #764ba2;
+        }
+        .breach-date {
+            font-size: 0.98rem;
+            color: #888;
+            margin-bottom: 7px;
+        }
+        .breach-desc {
+            font-size: 0.99rem;
+            color: #444;
+            margin-bottom: 10px;
+        }
+        .divider {
+            border: none;
+            border-top: 1px solid #ececec;
+            margin: 10px 0 12px 0;
+        }
+        .exposed-label {
+            font-size: 0.97rem;
             font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .exposed-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
         }
         .ability-tag {
             background: #667eea;
             color: #fff;
-            padding: 4px 10px;
+            padding: 5px 12px;
             border-radius: 13px;
-            font-size: 0.92rem;
+            font-size: 0.97rem;
             font-weight: 500;
             margin: 2px 4px 2px 0;
             display: inline-block;
+            box-shadow: 0 1px 4px rgba(102,126,234,0.07);
         }
         .no-results, .loading {
             text-align: center;
@@ -290,10 +329,12 @@
                 const breached = item.breached_data;
                 const details = item.breach_details;
                 return `<div class="hero-card">
-                    <div><strong>Breach Site:</strong> ${details.site_name} (${details.site_domain})</div>
-                    <div><strong>Date Leaked:</strong> ${details.date_leaked}</div>
-                    <div><strong>Description:</strong> ${details.description}</div>
-                    <div><strong>Exposed Data:</strong> ${Object.entries(breached).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
+                    <div class="breach-site"><span class="breach-site-icon">🔓</span> ${details.site_name} <span style="color:#bbb;font-weight:400;">(${details.site_domain})</span></div>
+                    <div class="breach-date">📅 ${details.date_leaked}</div>
+                    <div class="breach-desc">${details.description}</div>
+                    <hr class="divider" />
+                    <div class="exposed-label">Exposed Data:</div>
+                    <div class="exposed-tags">${Object.entries(breached).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
                 </div>`;
             }).join('');
             resultsArea.innerHTML = `<div class="hero-grid">${items}</div>`;
