@@ -18,9 +18,10 @@
             color: #333333;
         }
         .container {
-            max-width: 900px;
+            width: 90vw;
+            max-width: 1400px;
             margin: 40px auto;
-            padding: 32px 20px;
+            padding: 32px 2vw;
             background: #fff;
             border-radius: 18px;
             box-shadow: 0 6px 32px rgba(60,60,90,0.10), 0 1.5px 6px rgba(60,60,90,0.06);
@@ -234,6 +235,10 @@
             }
         }
         @media (max-width: 900px) {
+            .container {
+                width: 98vw;
+                padding: 10px 1vw;
+            }
             .results-table {
                 min-width: 600px;
             }
@@ -243,7 +248,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="/heroic-logo.png" alt="HEROIC Logo" class="heroic-logo" />
+            <img src="/heroic-logo.webp" alt="HEROIC Logo" class="heroic-logo" />
             <div class="header-title">
                 <h1>HEROIC Search Tool</h1>
                 <p>Discover compromised credentials and breach details</p>
@@ -284,7 +289,7 @@
                 <span id="resultsTitle">Search Results</span>
             </div>
             <div id="resultsArea">
-                <div class="loading"><div class="spinner"></div>Enter a value and search for compromised credentials.</div>
+                <div class="loading">Enter a value and search for compromised credentials.</div>
             </div>
         </div>
     </div>
@@ -301,7 +306,7 @@
             const type = typeSelect.value;
             const account = accountInput.value.trim();
             if (!type || !account) return;
-            resultsArea.innerHTML = '<div class="loading"><div class="spinner"></div>Searching...</div>';
+            resultsArea.innerHTML = '<div class="loading">Searching...</div>';
             try {
                 const params = new URLSearchParams({ type, account });
                 const response = await fetch(`/api/search?${params}`);
@@ -379,7 +384,7 @@
 
         function clearSearch() {
             accountInput.value = '';
-            resultsArea.innerHTML = '<div class="loading"><div class="spinner"></div>Enter a value and search for compromised credentials.</div>';
+            resultsArea.innerHTML = '<div class="loading">Enter a value and search for compromised credentials.</div>';
             resultsTitle.textContent = 'Search Results';
         }
 
@@ -388,6 +393,31 @@
             performSearch();
         });
         clearBtn.addEventListener('click', clearSearch);
+
+        accountInput.addEventListener('input', () => {
+            const value = accountInput.value.trim();
+            let detected = '';
+            if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+                detected = 'email';
+            } else if (/^\d{3}-?\d{2}-?\d{4}$/.test(value)) {
+                detected = 'social_security_number';
+            } else if (/^(\+?\d[\d\s\-().]{6,})$/.test(value.replace(/\D/g, '')) && value.replace(/\D/g, '').length >= 7) {
+                detected = 'phone_number';
+            } else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(value)) {
+                detected = 'ip_address';
+            } else if (/^([a-fA-F0-9:]+:+)+[a-fA-F0-9]+$/.test(value)) {
+                detected = 'ip_address';
+            } else if (/^(1|3|bc1)[A-HJ-NP-Za-km-z1-9]{25,39}$/.test(value)) {
+                detected = 'bitcoin_address';
+            } else if (/^[^@\s]+\.[a-zA-Z]{2,}$/.test(value) && !value.includes('@')) {
+                detected = 'email_domain';
+            } else if (value.length > 0) {
+                detected = 'username';
+            }
+            if (detected) {
+                typeSelect.value = detected;
+            }
+        });
     </script>
 </body>
 </html>
