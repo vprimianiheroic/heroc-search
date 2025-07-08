@@ -334,67 +334,35 @@
         }
 
         function displayResults(data) {
-            if (!data || !data.data || data.data.length === 0) {
+            if (!data || !data.data) {
                 resultsArea.innerHTML = '<div class="no-results">No compromised credentials found for this query.</div>';
                 return;
             }
-            // Table headers
-            const headers = [
-                { key: 'site_name', label: 'Breach Site' },
-                { key: 'site_domain', label: 'Domain' },
-                { key: 'date_leaked', label: 'Date Leaked' },
-                { key: 'description', label: 'Description' },
-                { key: 'exposed', label: 'Exposed Data' }
-            ];
-            // Store data for sorting
-            let tableData = data.data.map(item => {
-                const d = item.breach_details;
-                return {
-                    site_name: d.site_name,
-                    site_domain: d.site_domain,
-                    date_leaked: d.date_leaked,
-                    description: d.description,
-                    exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
-                };
-            });
-            let sortKey = 'date_leaked';
-            let sortDir = 'desc';
-            function renderTable() {
-                let sorted = [...tableData];
-                sorted.sort((a, b) => {
-                    if (sortKey === 'date_leaked') {
-                        // Sort by date string (YYYY-MM-DD)
-                        return (sortDir === 'asc' ? 1 : -1) * (a.date_leaked.localeCompare(b.date_leaked));
-                    } else {
-                        return (sortDir === 'asc' ? 1 : -1) * (a[sortKey] || '').localeCompare(b[sortKey] || '');
-                    }
-                });
-                let thead = `<thead><tr>` + headers.map(h => `<th class="${sortKey === h.key ? 'sort-' + sortDir : ''}" data-key="${h.key}">${h.label}</th>`).join('') + `</tr></thead>`;
-                let tbody = `<tbody>` + sorted.map(row =>
-                    `<tr>` +
-                    `<td>${row.site_name}</td>` +
-                    `<td>${row.site_domain}</td>` +
-                    `<td>${row.date_leaked}</td>` +
-                    `<td>${row.description}</td>` +
-                    `<td>${row.exposed}</td>` +
-                    `</tr>`
-                ).join('') + `</tbody>`;
-                resultsArea.innerHTML = `<div class="results-table-container"><table class="results-table">${thead}${tbody}</table></div>`;
-                // Add sorting event listeners
-                document.querySelectorAll('.results-table th').forEach(th => {
-                    th.onclick = () => {
-                        const key = th.getAttribute('data-key');
-                        if (sortKey === key) {
-                            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-                        } else {
-                            sortKey = key;
-                            sortDir = 'asc';
-                        }
-                        renderTable();
-                    };
+            // Get the last searched value and detected type
+            const type = typeSelect.value;
+            const account = accountInput.value.trim();
+            let items = [];
+            if (data.data.length === 0) {
+                // No results, show a card with the input and type
+                items = [`<div class="hero-card">
+                    <div class="breach-site"><span class="breach-site-icon">🔍</span> ${account ? account : '<i>No input</i>'} <span style="color:#bbb;font-weight:400;">(${type})</span></div>
+                    <div class="breach-desc" style="color:#ba0202;font-weight:600;">No data found</div>
+                </div>`];
+            } else {
+                items = data.data.map(item => {
+                    const breached = item.breached_data;
+                    const details = item.breach_details;
+                    return `<div class="hero-card">
+                        <div class="breach-site"><span class="breach-site-icon">🔓</span> ${details.site_name} <span style="color:#bbb;font-weight:400;">(${details.site_domain})</span></div>
+                        <div class="breach-date">📅 ${details.date_leaked}</div>
+                        <div class="breach-desc">${details.description}</div>
+                        <hr class="divider" />
+                        <div class="exposed-label">Exposed Data:</div>
+                        <div class="exposed-tags">${Object.entries(breached).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
+                    </div>`;
                 });
             }
-            renderTable();
+            resultsArea.innerHTML = `<div class="hero-grid">${items.join('')}</div>`;
             resultsTitle.textContent = `Results (${data.data.length})`;
         }
 
@@ -544,64 +512,42 @@
                 }
             }
             csvProgress.textContent = '';
-            // Show in table, add CSV Input column
-            const headers = [
-                { key: '_csv_input', label: 'CSV Input' },
-                { key: '_csv_type', label: 'Detected Type' },
-                { key: 'site_name', label: 'Breach Site' },
-                { key: 'site_domain', label: 'Domain' },
-                { key: 'date_leaked', label: 'Date Leaked' },
-                { key: 'description', label: 'Description' },
-                { key: 'exposed', label: 'Exposed Data' }
-            ];
-            let tableData = [
-                ...allResults.map(item => {
-                    const d = item.breach_details;
-                    return {
-                        _csv_input: item._csv_input,
-                        _csv_type: item._csv_type,
-                        site_name: d.site_name,
-                        site_domain: d.site_domain,
-                        date_leaked: d.date_leaked,
-                        description: d.description,
-                        exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
-                    };
-                }),
-                ...searchedRows
-            ];
-            let sortKey = 'date_leaked';
-            let sortDir = 'desc';
-            function renderTable() {
-                let sorted = [...tableData];
-                sorted.sort((a, b) => {
-                    if (sortKey === 'date_leaked') {
-                        return (sortDir === 'asc' ? 1 : -1) * (a.date_leaked.localeCompare(b.date_leaked));
-                    } else {
-                        return (sortDir === 'asc' ? 1 : -1) * (a[sortKey] || '').localeCompare(b[sortKey] || '');
-                    }
-                });
-                let thead = `<thead><tr>` + headers.map(h => `<th class="${sortKey === h.key ? 'sort-' + sortDir : ''}" data-key="${h.key}">${h.label}</th>`).join('') + `</tr></thead>`;
-                let tbody = `<tbody>` + sorted.map(row =>
-                    `<tr>` +
-                    headers.map(h => `<td>${row[h.key] || ''}</td>`).join('') +
-                    `</tr>`
-                ).join('') + `</tbody>`;
-                resultsArea.innerHTML = `<div class="results-table-container"><table class="results-table">${thead}${tbody}</table></div>`;
-                document.querySelectorAll('.results-table th').forEach(th => {
-                    th.onclick = () => {
-                        const key = th.getAttribute('data-key');
-                        if (sortKey === key) {
-                            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-                        } else {
-                            sortKey = key;
-                            sortDir = 'asc';
-                        }
-                        renderTable();
-                    };
-                });
-            }
-            renderTable();
-            resultsTitle.textContent = `Results (${tableData.length})`;
+            // Show as cards in a grid
+            let cards = [];
+            // For each searched value, show all results or a no-data card
+            const allSearched = [...allResults.map(item => ({
+                _csv_input: item._csv_input,
+                _csv_type: item._csv_type
+            })), ...searchedRows.map(item => ({
+                _csv_input: item._csv_input,
+                _csv_type: item._csv_type
+            }))];
+            const uniqueInputs = Array.from(new Set(allSearched.map(x => x._csv_input + '|' + x._csv_type)));
+            uniqueInputs.forEach(key => {
+                const [input, type] = key.split('|');
+                const matches = allResults.filter(r => r._csv_input === input && r._csv_type === type);
+                if (matches.length) {
+                    matches.forEach(item => {
+                        const d = item.breach_details;
+                        cards.push(`<div class="hero-card">
+                            <div class="breach-site"><span class="breach-site-icon">🔓</span> ${d.site_name} <span style="color:#bbb;font-weight:400;">(${d.site_domain})</span></div>
+                            <div class="breach-date">📅 ${d.date_leaked}</div>
+                            <div class="breach-desc">${d.description}</div>
+                            <hr class="divider" />
+                            <div class="exposed-label">Exposed Data:</div>
+                            <div class="exposed-tags">${Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
+                            <div style="margin-top:10px;font-size:0.97em;color:#1ca8dd;"><b>CSV Input:</b> ${input} <span style="color:#888;">(${type})</span></div>
+                        </div>`);
+                    });
+                } else {
+                    cards.push(`<div class="hero-card">
+                        <div class="breach-site"><span class="breach-site-icon">🔍</span> ${input} <span style="color:#bbb;font-weight:400;">(${type})</span></div>
+                        <div class="breach-desc" style="color:#ba0202;font-weight:600;">No data found</div>
+                    </div>`);
+                }
+            });
+            resultsArea.innerHTML = `<div class="hero-grid">${cards.join('')}</div>`;
+            resultsTitle.textContent = `Results (${cards.length})`;
         });
     </script>
 </body>
