@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fetch = require('node-fetch');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,8 +26,25 @@ app.get('/api/heroes', (req, res) => {
   res.json([]);
 });
 
-app.get('/api/search', (req, res) => {
-  res.json([]);
+app.get('/api/search', async (req, res) => {
+  const { type, account } = req.query;
+  const apiKey = process.env.HEROIC_API_KEY;
+  if (!type || !account) {
+    return res.status(400).json({ error: 'Missing required parameters: type and account' });
+  }
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Missing HEROIC_API_KEY environment variable' });
+  }
+  const url = `https://api.heroic.com/v7/breach-search?type=${encodeURIComponent(type)}&account=${encodeURIComponent(account)}`;
+  try {
+    const resp = await fetch(url, {
+      headers: { 'x-api-key': apiKey }
+    });
+    const data = await resp.json();
+    res.status(resp.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch from HEROIC API', details: err.message });
+  }
 });
 
 app.get('/api/classes', (req, res) => {
