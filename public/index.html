@@ -261,7 +261,7 @@
                 The app will search the HEROIC database for each value and display the results below.<br>
                 <b>Instructions:</b> The CSV should have a header row. Only the first column will be used. Max 50 rows per upload.
             </div>
-            <input type="file" id="csvInput" accept=".csv" style="margin-bottom:10px;" />
+            <input type="file" id="csvInput" accept=".csv,.xlsx,.xls" style="margin-bottom:10px;" />
             <button id="csvSearchBtn" class="search-btn" style="margin-left:10px;">Search CSV</button>
             <span id="csvProgress" style="margin-left:18px;color:#1ca8dd;font-weight:600;"></span>
         </div>
@@ -306,6 +306,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         const typeSelect = document.getElementById('typeSelect');
         const accountInput = document.getElementById('accountInput');
@@ -436,128 +437,159 @@
 
         csvSearchBtn.addEventListener('click', async () => {
             if (!csvInput.files || !csvInput.files[0]) {
-                alert('Please select a CSV file.');
+                alert('Please select a CSV or Excel file.');
                 return;
             }
-            Papa.parse(csvInput.files[0], {
-                header: true,
-                skipEmptyLines: true,
-                complete: async function(results) {
-                    let rows = results.data;
-                    if (!rows.length) {
-                        alert('No data found in CSV.');
-                        return;
-                    }
-                    // Use first column only
-                    const col = Object.keys(rows[0])[0];
-                    let values = rows.map(r => (r[col] || '').trim()).filter(Boolean);
-                    if (values.length > 50) values = values.slice(0, 50);
-                    if (!values.length) {
-                        alert('No valid values found in the first column.');
-                        return;
-                    }
-                    csvProgress.textContent = `Searching (${values.length})...`;
-                    let allResults = [];
-                    for (let i = 0; i < values.length; ++i) {
-                        const value = values[i];
-                        let detected = '';
-                        if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
-                            detected = 'email';
-                        } else if (/^\d{3}-?\d{2}-?\d{4}$/.test(value)) {
-                            detected = 'social_security_number';
-                        } else if (/^(\+?\d[\d\s\-().]{6,})$/.test(value.replace(/\D/g, '')) && value.replace(/\D/g, '').length >= 7) {
-                            detected = 'phone_number';
-                        } else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(value)) {
-                            detected = 'ip_address';
-                        } else if (/^([a-fA-F0-9:]+:+)+[a-fA-F0-9]+$/.test(value)) {
-                            detected = 'ip_address';
-                        } else if (/^(1|3|bc1)[A-HJ-NP-Za-km-z1-9]{25,39}$/.test(value)) {
-                            detected = 'bitcoin_address';
-                        } else if (/^[^@\s]+\.[a-zA-Z]{2,}$/.test(value) && !value.includes('@')) {
-                            detected = 'email_domain';
-                        } else if (value.length > 0) {
-                            detected = 'username';
-                        }
-                        if (!detected) continue;
-                        csvProgress.textContent = `Searching (${i+1}/${values.length})...`;
-                        try {
-                            const params = new URLSearchParams({ type: detected, account: value });
-                            const response = await fetch(`/api/search?${params}`);
-                            const data = await response.json();
-                            if (data && data.data && data.data.length) {
-                                data.data.forEach(row => {
-                                    row._csv_input = value;
-                                    row._csv_type = detected;
-                                });
-                                allResults.push(...data.data);
+            const file = csvInput.files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            let values = [];
+            let col = '';
+            if (ext === 'csv') {
+                await new Promise((resolve) => {
+                    Papa.parse(file, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: function(results) {
+                            let rows = results.data;
+                            if (!rows.length) {
+                                alert('No data found in CSV.');
+                                resolve();
+                                return;
                             }
-                        } catch (e) {
-                            // skip errors, continue
+                            col = Object.keys(rows[0])[0];
+                            values = rows.map(r => (r[col] || '').trim()).filter(Boolean);
+                            resolve();
                         }
-                    }
-                    csvProgress.textContent = '';
-                    if (!allResults.length) {
-                        resultsArea.innerHTML = '<div class="no-results">No matches found for any CSV values.</div>';
-                        resultsTitle.textContent = 'Results (0)';
-                        return;
-                    }
-                    // Show in table, add CSV Input column
-                    const headers = [
-                        { key: '_csv_input', label: 'CSV Input' },
-                        { key: '_csv_type', label: 'Detected Type' },
-                        { key: 'site_name', label: 'Breach Site' },
-                        { key: 'site_domain', label: 'Domain' },
-                        { key: 'date_leaked', label: 'Date Leaked' },
-                        { key: 'description', label: 'Description' },
-                        { key: 'exposed', label: 'Exposed Data' }
-                    ];
-                    let tableData = allResults.map(item => {
-                        const d = item.breach_details;
-                        return {
-                            _csv_input: item._csv_input,
-                            _csv_type: item._csv_type,
-                            site_name: d.site_name,
-                            site_domain: d.site_domain,
-                            date_leaked: d.date_leaked,
-                            description: d.description,
-                            exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
-                        };
                     });
-                    let sortKey = 'date_leaked';
-                    let sortDir = 'desc';
-                    function renderTable() {
-                        let sorted = [...tableData];
-                        sorted.sort((a, b) => {
-                            if (sortKey === 'date_leaked') {
-                                return (sortDir === 'asc' ? 1 : -1) * (a.date_leaked.localeCompare(b.date_leaked));
-                            } else {
-                                return (sortDir === 'asc' ? 1 : -1) * (a[sortKey] || '').localeCompare(b[sortKey] || '');
-                            }
-                        });
-                        let thead = `<thead><tr>` + headers.map(h => `<th class="${sortKey === h.key ? 'sort-' + sortDir : ''}" data-key="${h.key}">${h.label}</th>`).join('') + `</tr></thead>`;
-                        let tbody = `<tbody>` + sorted.map(row =>
-                            `<tr>` +
-                            headers.map(h => `<td>${row[h.key] || ''}</td>`).join('') +
-                            `</tr>`
-                        ).join('') + `</tbody>`;
-                        resultsArea.innerHTML = `<div class="results-table-container"><table class="results-table">${thead}${tbody}</table></div>`;
-                        document.querySelectorAll('.results-table th').forEach(th => {
-                            th.onclick = () => {
-                                const key = th.getAttribute('data-key');
-                                if (sortKey === key) {
-                                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-                                } else {
-                                    sortKey = key;
-                                    sortDir = 'asc';
-                                }
-                                renderTable();
-                            };
-                        });
-                    }
-                    renderTable();
-                    resultsTitle.textContent = `Results (${allResults.length})`;
+                });
+            } else if (ext === 'xlsx' || ext === 'xls') {
+                await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                        if (!json.length || !json[0].length) {
+                            alert('No data found in Excel file.');
+                            resolve();
+                            return;
+                        }
+                        col = json[0][0];
+                        values = json.slice(1).map(r => (r[0] || '').toString().trim()).filter(Boolean);
+                        resolve();
+                    };
+                    reader.readAsArrayBuffer(file);
+                });
+            } else {
+                alert('Unsupported file type. Please upload a CSV or Excel file.');
+                return;
+            }
+            if (values.length > 50) values = values.slice(0, 50);
+            if (!values.length) {
+                alert('No valid values found in the first column.');
+                return;
+            }
+            csvProgress.textContent = `Searching (${values.length})...`;
+            let allResults = [];
+            for (let i = 0; i < values.length; ++i) {
+                const value = values[i];
+                let detected = '';
+                if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
+                    detected = 'email';
+                } else if (/^\d{3}-?\d{2}-?\d{4}$/.test(value)) {
+                    detected = 'social_security_number';
+                } else if (/^(\+?\d[\d\s\-().]{6,})$/.test(value.replace(/\D/g, '')) && value.replace(/\D/g, '').length >= 7) {
+                    detected = 'phone_number';
+                } else if (/^(\d{1,3}\.){3}\d{1,3}$/.test(value)) {
+                    detected = 'ip_address';
+                } else if (/^([a-fA-F0-9:]+:+)+[a-fA-F0-9]+$/.test(value)) {
+                    detected = 'ip_address';
+                } else if (/^(1|3|bc1)[A-HJ-NP-Za-km-z1-9]{25,39}$/.test(value)) {
+                    detected = 'bitcoin_address';
+                } else if (/^[^@\s]+\.[a-zA-Z]{2,}$/.test(value) && !value.includes('@')) {
+                    detected = 'email_domain';
+                } else if (value.length > 0) {
+                    detected = 'username';
                 }
+                if (!detected) continue;
+                csvProgress.textContent = `Searching (${i+1}/${values.length})...`;
+                try {
+                    const params = new URLSearchParams({ type: detected, account: value });
+                    const response = await fetch(`/api/search?${params}`);
+                    const data = await response.json();
+                    if (data && data.data && data.data.length) {
+                        data.data.forEach(row => {
+                            row._csv_input = value;
+                            row._csv_type = detected;
+                        });
+                        allResults.push(...data.data);
+                    }
+                } catch (e) {
+                    // skip errors, continue
+                }
+            }
+            csvProgress.textContent = '';
+            if (!allResults.length) {
+                resultsArea.innerHTML = '<div class="no-results">No matches found for any CSV/Excel values.</div>';
+                resultsTitle.textContent = 'Results (0)';
+                return;
+            }
+            // Show in table, add CSV Input column
+            const headers = [
+                { key: '_csv_input', label: 'CSV Input' },
+                { key: '_csv_type', label: 'Detected Type' },
+                { key: 'site_name', label: 'Breach Site' },
+                { key: 'site_domain', label: 'Domain' },
+                { key: 'date_leaked', label: 'Date Leaked' },
+                { key: 'description', label: 'Description' },
+                { key: 'exposed', label: 'Exposed Data' }
+            ];
+            let tableData = allResults.map(item => {
+                const d = item.breach_details;
+                return {
+                    _csv_input: item._csv_input,
+                    _csv_type: item._csv_type,
+                    site_name: d.site_name,
+                    site_domain: d.site_domain,
+                    date_leaked: d.date_leaked,
+                    description: d.description,
+                    exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
+                };
             });
+            let sortKey = 'date_leaked';
+            let sortDir = 'desc';
+            function renderTable() {
+                let sorted = [...tableData];
+                sorted.sort((a, b) => {
+                    if (sortKey === 'date_leaked') {
+                        return (sortDir === 'asc' ? 1 : -1) * (a.date_leaked.localeCompare(b.date_leaked));
+                    } else {
+                        return (sortDir === 'asc' ? 1 : -1) * (a[sortKey] || '').localeCompare(b[sortKey] || '');
+                    }
+                });
+                let thead = `<thead><tr>` + headers.map(h => `<th class="${sortKey === h.key ? 'sort-' + sortDir : ''}" data-key="${h.key}">${h.label}</th>`).join('') + `</tr></thead>`;
+                let tbody = `<tbody>` + sorted.map(row =>
+                    `<tr>` +
+                    headers.map(h => `<td>${row[h.key] || ''}</td>`).join('') +
+                    `</tr>`
+                ).join('') + `</tbody>`;
+                resultsArea.innerHTML = `<div class="results-table-container"><table class="results-table">${thead}${tbody}</table></div>`;
+                document.querySelectorAll('.results-table th').forEach(th => {
+                    th.onclick = () => {
+                        const key = th.getAttribute('data-key');
+                        if (sortKey === key) {
+                            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            sortKey = key;
+                            sortDir = 'asc';
+                        }
+                        renderTable();
+                    };
+                });
+            }
+            renderTable();
+            resultsTitle.textContent = `Results (${allResults.length})`;
         });
     </script>
 </body>
