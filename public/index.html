@@ -492,6 +492,7 @@
             }
             csvProgress.textContent = `Searching (${values.length})...`;
             let allResults = [];
+            let searchedRows = [];
             for (let i = 0; i < values.length; ++i) {
                 const value = values[i];
                 let detected = '';
@@ -514,6 +515,7 @@
                 }
                 if (!detected) continue;
                 csvProgress.textContent = `Searching (${i+1}/${values.length})...`;
+                let found = false;
                 try {
                     const params = new URLSearchParams({ type: detected, account: value });
                     const response = await fetch(`/api/search?${params}`);
@@ -524,17 +526,24 @@
                             row._csv_type = detected;
                         });
                         allResults.push(...data.data);
+                        found = true;
                     }
                 } catch (e) {
                     // skip errors, continue
                 }
+                if (!found) {
+                    searchedRows.push({
+                        _csv_input: value,
+                        _csv_type: detected,
+                        site_name: '',
+                        site_domain: '',
+                        date_leaked: '',
+                        description: '',
+                        exposed: '<span style="color:#ba0202;font-weight:600;">No data found</span>'
+                    });
+                }
             }
             csvProgress.textContent = '';
-            if (!allResults.length) {
-                resultsArea.innerHTML = '<div class="no-results">No matches found for any CSV/Excel values.</div>';
-                resultsTitle.textContent = 'Results (0)';
-                return;
-            }
             // Show in table, add CSV Input column
             const headers = [
                 { key: '_csv_input', label: 'CSV Input' },
@@ -545,18 +554,21 @@
                 { key: 'description', label: 'Description' },
                 { key: 'exposed', label: 'Exposed Data' }
             ];
-            let tableData = allResults.map(item => {
-                const d = item.breach_details;
-                return {
-                    _csv_input: item._csv_input,
-                    _csv_type: item._csv_type,
-                    site_name: d.site_name,
-                    site_domain: d.site_domain,
-                    date_leaked: d.date_leaked,
-                    description: d.description,
-                    exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
-                };
-            });
+            let tableData = [
+                ...allResults.map(item => {
+                    const d = item.breach_details;
+                    return {
+                        _csv_input: item._csv_input,
+                        _csv_type: item._csv_type,
+                        site_name: d.site_name,
+                        site_domain: d.site_domain,
+                        date_leaked: d.date_leaked,
+                        description: d.description,
+                        exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
+                    };
+                }),
+                ...searchedRows
+            ];
             let sortKey = 'date_leaked';
             let sortDir = 'desc';
             function renderTable() {
@@ -589,7 +601,7 @@
                 });
             }
             renderTable();
-            resultsTitle.textContent = `Results (${allResults.length})`;
+            resultsTitle.textContent = `Results (${tableData.length})`;
         });
     </script>
 </body>
