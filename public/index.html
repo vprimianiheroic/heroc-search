@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heroic Search Tool</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Open+Sans:wght@400;600&display=swap');
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
+            font-family: 'Open Sans', Arial, sans-serif;
+            background: #e9ecf3;
             min-height: 100vh;
-            color: #222;
+            color: #333333;
         }
         .container {
-            max-width: 600px;
+            max-width: 900px;
             margin: 40px auto;
             padding: 32px 20px;
             background: #fff;
@@ -26,35 +26,36 @@
             box-shadow: 0 6px 32px rgba(60,60,90,0.10), 0 1.5px 6px rgba(60,60,90,0.06);
         }
         .header {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-        .logo {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 12px auto;
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+            gap: 18px;
+            margin-bottom: 32px;
         }
-        .logo span {
-            font-size: 2rem;
-            color: #fff;
+        .heroic-logo {
+            height: 48px;
+            width: 48px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(28,168,221,0.10);
+            object-fit: contain;
         }
-        .header h1 {
+        .header-title {
+            display: flex;
+            flex-direction: column;
+        }
+        .header-title h1 {
+            font-family: 'Roboto', Arial, sans-serif;
             font-size: 2.1rem;
             font-weight: 700;
-            color: #222;
-            margin-bottom: 6px;
+            color: #ba0202;
+            margin-bottom: 2px;
             letter-spacing: -1px;
         }
-        .header p {
+        .header-title p {
             font-size: 1.08rem;
-            color: #555;
+            color: #1ca8dd;
             opacity: 0.85;
+            font-family: 'Open Sans', Arial, sans-serif;
         }
         .search-container {
             background: #f8fafd;
@@ -75,9 +76,10 @@
             flex-direction: column;
         }
         .form-group label {
+            font-family: 'Roboto', Arial, sans-serif;
+            color: #333333;
             margin-bottom: 6px;
             font-weight: 600;
-            color: #444;
             font-size: 0.98rem;
         }
         .form-group input,
@@ -88,43 +90,46 @@
             font-size: 1rem;
             background: #fff;
             transition: border-color 0.2s;
+            font-family: 'Open Sans', Arial, sans-serif;
         }
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #1ca8dd;
             background: #f5f7ff;
         }
         .search-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #ba0202;
             color: #fff;
             border: none;
             padding: 13px 28px;
             border-radius: 7px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-family: 'Roboto', Arial, sans-serif;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.08);
+            box-shadow: 0 2px 8px rgba(186,2,2,0.08);
             transition: background 0.2s, transform 0.15s;
         }
         .search-btn:hover {
-            background: linear-gradient(135deg, #5a67d8 0%, #6b47b2 100%);
+            background: #a00101;
             transform: translateY(-2px) scale(1.03);
         }
         .clear-btn {
-            background: #e1e5e9;
-            color: #555;
+            background: #e9ecf3;
+            color: #333333;
             border: none;
             padding: 13px 20px;
             border-radius: 7px;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
+            font-family: 'Roboto', Arial, sans-serif;
             cursor: pointer;
             transition: background 0.2s, color 0.2s;
         }
         .clear-btn:hover {
             background: #d1d5db;
-            color: #222;
+            color: #ba0202;
         }
         .results-container {
             background: #f8fafd;
@@ -135,80 +140,60 @@
         .results-header {
             margin-bottom: 18px;
             font-size: 1.25rem;
-            font-weight: 600;
-            color: #333;
-            letter-spacing: -0.5px;
-        }
-        .hero-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 22px;
-        }
-        .hero-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 22px 20px 16px 20px;
-            border: 1.5px solid #e1e5e9;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.08);
-            transition: box-shadow 0.2s, border-color 0.2s, transform 0.18s;
-            display: flex;
-            flex-direction: column;
-            min-height: 210px;
-        }
-        .hero-card:hover {
-            box-shadow: 0 8px 24px rgba(102,126,234,0.13);
-            border-color: #b4b8f7;
-            transform: translateY(-2px) scale(1.01);
-        }
-        .breach-site {
-            font-size: 1.13rem;
             font-weight: 700;
-            color: #4f46e5;
-            margin-bottom: 2px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
+            color: #333333;
+            letter-spacing: -0.5px;
+            font-family: 'Roboto', Arial, sans-serif;
         }
-        .breach-site-icon {
-            font-size: 1.1rem;
-            color: #764ba2;
+        .results-table-container {
+            overflow-x: auto;
+            margin-top: 10px;
         }
-        .breach-date {
-            font-size: 0.98rem;
-            color: #888;
-            margin-bottom: 7px;
+        table.results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+            font-size: 1rem;
+            min-width: 700px;
+            font-family: 'Open Sans', Arial, sans-serif;
         }
-        .breach-desc {
-            font-size: 0.99rem;
-            color: #444;
-            margin-bottom: 10px;
+        .results-table th, .results-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #ececec;
+            text-align: left;
         }
-        .divider {
-            border: none;
-            border-top: 1px solid #ececec;
-            margin: 10px 0 12px 0;
+        .results-table th {
+            background: #e9ecf3;
+            font-weight: 700;
+            color: #ba0202;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            user-select: none;
+            font-family: 'Roboto', Arial, sans-serif;
         }
-        .exposed-label {
-            font-size: 0.97rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 4px;
+        .results-table th.sort-asc::after {
+            content: ' \25B2';
+            font-size: 0.9em;
         }
-        .exposed-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 7px;
+        .results-table th.sort-desc::after {
+            content: ' \25BC';
+            font-size: 0.9em;
         }
-        .ability-tag {
-            background: #667eea;
-            color: #fff;
-            padding: 5px 12px;
-            border-radius: 13px;
-            font-size: 0.97rem;
-            font-weight: 500;
+        .results-table tr:hover {
+            background: #f0f4ff;
+        }
+        .results-table td .ability-tag {
             margin: 2px 4px 2px 0;
-            display: inline-block;
-            box-shadow: 0 1px 4px rgba(102,126,234,0.07);
+            padding: 4px 8px;
+            font-size: 0.95em;
+            background: #1ca8dd;
+            color: #fff;
+            border-radius: 8px;
+            font-family: 'Open Sans', Arial, sans-serif;
         }
         .no-results, .loading {
             text-align: center;
@@ -221,7 +206,7 @@
             width: 32px;
             height: 32px;
             border: 3.5px solid #e1e5e9;
-            border-top: 3.5px solid #667eea;
+            border-top: 3.5px solid #1ca8dd;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 10px;
@@ -248,14 +233,21 @@
                 padding: 2px 0;
             }
         }
+        @media (max-width: 900px) {
+            .results-table {
+                min-width: 600px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo"><span>🔍</span></div>
-            <h1>Heroic Search Tool</h1>
-            <p>Discover compromised credentials and breach details</p>
+            <img src="/heroic-logo.png" alt="HEROIC Logo" class="heroic-logo" />
+            <div class="header-title">
+                <h1>HEROIC Search Tool</h1>
+                <p>Discover compromised credentials and breach details</p>
+            </div>
         </div>
 
         <div class="search-container">
@@ -325,19 +317,63 @@
                 resultsArea.innerHTML = '<div class="no-results">No compromised credentials found for this query.</div>';
                 return;
             }
-            const items = data.data.map(item => {
-                const breached = item.breached_data;
-                const details = item.breach_details;
-                return `<div class="hero-card">
-                    <div class="breach-site"><span class="breach-site-icon">🔓</span> ${details.site_name} <span style="color:#bbb;font-weight:400;">(${details.site_domain})</span></div>
-                    <div class="breach-date">📅 ${details.date_leaked}</div>
-                    <div class="breach-desc">${details.description}</div>
-                    <hr class="divider" />
-                    <div class="exposed-label">Exposed Data:</div>
-                    <div class="exposed-tags">${Object.entries(breached).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')}</div>
-                </div>`;
-            }).join('');
-            resultsArea.innerHTML = `<div class="hero-grid">${items}</div>`;
+            // Table headers
+            const headers = [
+                { key: 'site_name', label: 'Breach Site' },
+                { key: 'site_domain', label: 'Domain' },
+                { key: 'date_leaked', label: 'Date Leaked' },
+                { key: 'description', label: 'Description' },
+                { key: 'exposed', label: 'Exposed Data' }
+            ];
+            // Store data for sorting
+            let tableData = data.data.map(item => {
+                const d = item.breach_details;
+                return {
+                    site_name: d.site_name,
+                    site_domain: d.site_domain,
+                    date_leaked: d.date_leaked,
+                    description: d.description,
+                    exposed: Object.entries(item.breached_data).map(([k,v]) => v ? `<span class='ability-tag'><b>${k}:</b> ${v}</span>` : '').join(' ')
+                };
+            });
+            let sortKey = 'date_leaked';
+            let sortDir = 'desc';
+            function renderTable() {
+                let sorted = [...tableData];
+                sorted.sort((a, b) => {
+                    if (sortKey === 'date_leaked') {
+                        // Sort by date string (YYYY-MM-DD)
+                        return (sortDir === 'asc' ? 1 : -1) * (a.date_leaked.localeCompare(b.date_leaked));
+                    } else {
+                        return (sortDir === 'asc' ? 1 : -1) * (a[sortKey] || '').localeCompare(b[sortKey] || '');
+                    }
+                });
+                let thead = `<thead><tr>` + headers.map(h => `<th class="${sortKey === h.key ? 'sort-' + sortDir : ''}" data-key="${h.key}">${h.label}</th>`).join('') + `</tr></thead>`;
+                let tbody = `<tbody>` + sorted.map(row =>
+                    `<tr>` +
+                    `<td>${row.site_name}</td>` +
+                    `<td>${row.site_domain}</td>` +
+                    `<td>${row.date_leaked}</td>` +
+                    `<td>${row.description}</td>` +
+                    `<td>${row.exposed}</td>` +
+                    `</tr>`
+                ).join('') + `</tbody>`;
+                resultsArea.innerHTML = `<div class="results-table-container"><table class="results-table">${thead}${tbody}</table></div>`;
+                // Add sorting event listeners
+                document.querySelectorAll('.results-table th').forEach(th => {
+                    th.onclick = () => {
+                        const key = th.getAttribute('data-key');
+                        if (sortKey === key) {
+                            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                        } else {
+                            sortKey = key;
+                            sortDir = 'asc';
+                        }
+                        renderTable();
+                    };
+                });
+            }
+            renderTable();
             resultsTitle.textContent = `Results (${data.data.length})`;
         }
 
